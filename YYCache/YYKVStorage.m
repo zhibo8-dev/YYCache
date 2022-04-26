@@ -586,7 +586,7 @@ static UIApplication *_YYSharedApplication() {
     return sqlite3_column_int(stmt, 0);
 }
 
-- (int)_dbGetTotalItemSize {
+- (long long)_dbGetTotalItemSize {
     NSString *sql = @"select sum(size) from manifest;";
     sqlite3_stmt *stmt = [self _dbPrepareStmt:sql];
     if (!stmt) return -1;
@@ -595,7 +595,7 @@ static UIApplication *_YYSharedApplication() {
         if (_errorLogsEnabled) NSLog(@"%s line:%d sqlite query error (%d): %s", __FUNCTION__, __LINE__, result, sqlite3_errmsg(_db));
         return -1;
     }
-    return sqlite3_column_int(stmt, 0);
+    return sqlite3_column_int64(stmt, 0);
 }
 
 - (int)_dbGetTotalItemCount {
@@ -1062,7 +1062,7 @@ static UIApplication *_YYSharedApplication() {
     return [self _dbGetTotalItemCount];
 }
 
-- (int)getItemsSize {
+- (long long)getItemsSize {
     return [self _dbGetTotalItemSize];
 }
 
