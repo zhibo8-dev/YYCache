@@ -610,7 +610,6 @@ static UIApplication *_YYSharedApplication() {
     return sqlite3_column_int(stmt, 0);
 }
 
-
 #pragma mark - file
 
 - (BOOL)_fileWriteWithName:(NSString *)filename data:(NSData *)data {
@@ -1046,6 +1045,11 @@ static UIApplication *_YYSharedApplication() {
     NSMutableArray *items = (NSMutableArray *)[self getItemForKeys:keys];
     NSMutableDictionary *kv = [NSMutableDictionary new];
     for (YYKVStorageItem *item in items) {
+        if (item.filename) {
+            //如果数据库读出文件名 根据文件取出对应数据
+            item.value = [self _fileReadWithName:item.filename];
+        }
+        
         if (item.key && item.value) {
             [kv setObject:item.value forKey:item.key];
         }
@@ -1064,6 +1068,43 @@ static UIApplication *_YYSharedApplication() {
 
 - (long long)getItemsSize {
     return [self _dbGetTotalItemSize];
+}
+
+- (NSDictionary *)getAllKeysAndValues {
+    if (![self _dbCheck]) return nil;
+    
+    NSString *sql = [NSString stringWithFormat:@"select key, filename, inline_data from manifest where key is not null;"];
+   
+    sqlite3_stmt *stmt = NULL;
+    int result = sqlite3_prepare_v2(_db, sql.UTF8String, -1, &stmt, NULL);
+    if (result != SQLITE_OK) {
+        if (_errorLogsEnabled) NSLog(@"%s line:%d sqlite stmt prepare error (%d): %s", __FUNCTION__, __LINE__, result, sqlite3_errmsg(_db));
+        return nil;
+    }
+    NSMutableDictionary *dict = @{}.mutableCopy;
+    do {
+        result = sqlite3_step(stmt);
+        if (result == SQLITE_ROW) {
+            YYKVStorageItem *item = [self _dbGetItemFromStmt:stmt excludeInlineData:NO];
+            if (item.filename) {
+                //如果数据库读出文件名 根据文件取出对应数据
+                item.value = [self _fileReadWithName:item.filename];
+            }
+            
+            if (item.key && item.value) {
+                [dict setObject:item.value forKey:item.key];
+            }
+            
+        } else if (result == SQLITE_DONE) {
+            break;
+        } else {
+            if (_errorLogsEnabled) NSLog(@"%s line:%d sqlite query error (%d): %s", __FUNCTION__, __LINE__, result, sqlite3_errmsg(_db));
+            dict = nil;
+            break;
+        }
+    } while (1);
+    sqlite3_finalize(stmt);
+    return dict.copy;
 }
 
 @end

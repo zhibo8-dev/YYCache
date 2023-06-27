@@ -455,4 +455,10 @@ static void _YYDiskCacheSetGlobal(YYDiskCache *cache) {
     Unlock();
 }
 
+- (NSDictionary *)getAllKeysAndValues {
+    Lock();
+    NSDictionary *dict = _kv.getAllKeysAndValues;
+    Unlock();
+    return dict;
+}
 @end

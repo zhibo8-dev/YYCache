@@ -319,6 +319,9 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)totalCostWithBlock:(void(^)(NSInteger totalCost))block;
 
+/// 获取所有的本地存储key
+- (NSDictionary *)getAllKeysAndValues;
+
 
 #pragma mark - Trim
 ///=============================================================================

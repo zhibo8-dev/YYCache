@@ -320,6 +320,12 @@ typedef NS_ENUM(NSUInteger, YYKVStorageType) {
  */
 - (long long)getItemsSize;
 
+/**
+ Get all keys.
+ @return All keys and Values Dict;.
+ */
+- (NSDictionary *)getAllKeysAndValues;
+
 @end
 
 NS_ASSUME_NONNULL_END
