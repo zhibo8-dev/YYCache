@@ -1073,7 +1073,7 @@ static UIApplication *_YYSharedApplication() {
 - (NSDictionary *)getAllKeysAndValues {
     if (![self _dbCheck]) return nil;
     
-    NSString *sql = [NSString stringWithFormat:@"select key, filename, inline_data from manifest where key is not null;"];
+    NSString *sql = [NSString stringWithFormat:@"select key, filename, size, inline_data from manifest where key is not null;"];
    
     sqlite3_stmt *stmt = NULL;
     int result = sqlite3_prepare_v2(_db, sql.UTF8String, -1, &stmt, NULL);
